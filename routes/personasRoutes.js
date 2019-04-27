@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const personasMiddlewares = require('../lib/personasMiddlewares');
 
 const Persona = mongoose.model('personas');
 
@@ -40,32 +41,42 @@ module.exports = (app) => {
 	});
 
 
-	app.post('/api/personas', async (req, res) => {
-		try {
-			const nuevaPersona = new Persona(req.body);
-			const respuesta = await nuevaPersona.save();
-			res.send(respuesta);
+	app.post(
+		'/api/personas',
+		personasMiddlewares.datosLlenos,
+		personasMiddlewares.tipoDato,
+		async (req, res) => {
+			try {
+				const nuevaPersona = new Persona(req.body);
+				const respuesta = await nuevaPersona.save();
+				res.send(respuesta);
+			}
+			catch (error) {
+				res.send(error.message);
+			}
 		}
-		catch (error) {
-			res.send(error.message);
-		}
-	});
+	);
 
 
-	app.put('/api/personas/:id', async (req, res) => {
-		try {
-			const respuesta = await Persona.findOneAndUpdate(
-					{ _id: req.params.id },
-					req.body,
-					{ new: true }
-				).exec();
+	app.put(
+		'/api/personas/:id',
+		personasMiddlewares.datosLlenos,
+		personasMiddlewares.tipoDato,
+		async (req, res) => {
+			try {
+				const respuesta = await Persona.findOneAndUpdate(
+						{ _id: req.params.id },
+						req.body,
+						{ new: true }
+					).exec();
 
-			res.send(respuesta);
+				res.send(respuesta);
+			}
+			catch (error) {
+				res.send(error.message);
+			}
 		}
-		catch (error) {
-			res.send(error.message);
-		}
-	});
+	);
 
 
 	app.delete('/api/personas/:id', async (req, res) => {
